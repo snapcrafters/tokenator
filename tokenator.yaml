@@ -1,0 +1,34 @@
+org: snapcrafters
+snaps:
+  - name: android-studio
+  - name: axel
+  - name: cumulonimbus
+  - name: ddgr
+  - name: discord
+  - name: eclipse
+  - name: ffmpeg-sdk
+  - name: ghvmctl
+  - name: helm
+  - name: jenkins
+  - name: mattermost-desktop
+  - name: mosaic
+  - name: pyradio
+  - name: signal-desktop
+  - name: simplenote
+  - name: sublime-merge
+  - name: terraform
+
+  - gimp:
+      tracks:
+        - name: latest
+          branch: candidate
+          environment: Candidate Branch
+        - name: preview
+          branch: preview
+          environment: Preview Candidate Branch
+
+  - name: sublime-text
+    tracks:
+      - name: latest
+        branch: candidate
+        environment: Candidate
