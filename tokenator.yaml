@@ -18,14 +18,14 @@ snaps:
   - name: sublime-merge
   - name: terraform
 
-  - gimp:
-      tracks:
-        - name: latest
-          branch: candidate
-          environment: Candidate Branch
-        - name: preview
-          branch: preview
-          environment: Preview Candidate Branch
+  - name: gimp
+    tracks:
+      - name: latest
+        branch: candidate
+        environment: Candidate Branch
+      - name: preview
+        branch: preview
+        environment: Preview Candidate Branch
 
   - name: sublime-text
     tracks:
