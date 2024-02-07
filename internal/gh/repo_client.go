@@ -118,11 +118,28 @@ func (rc *RepoClient) createEnvironment(ctx context.Context, repo string, track 
 		return fmt.Errorf("failed to create branch policy: %w", err)
 	}
 
-	branchPolicyRequest := &github.DeploymentBranchPolicyRequest{Name: &track.Branch}
-
-	_, _, err = rc.client.Repositories.CreateDeploymentBranchPolicy(ctx, rc.org, repo, track.Environment, branchPolicyRequest)
+	err = rc.createDeploymentBranchPolicy(ctx, repo, track.Environment, track.Branch)
 	if err != nil {
-		return fmt.Errorf("failed to create branch policy for environment: %w", err)
+		return fmt.Errorf("failed to create branch policy: %w", err)
+	}
+
+	if track.Branch != "candidate" {
+		err = rc.createDeploymentBranchPolicy(ctx, repo, track.Environment, "candidate")
+		if err != nil {
+			return fmt.Errorf("failed to create branch policy: %w", err)
+		}
+	}
+
+	return nil
+}
+
+func (rc *RepoClient) createDeploymentBranchPolicy(ctx context.Context, repo string, env string, branch string) error {
+	b := branch
+	branchPolicyRequest := &github.DeploymentBranchPolicyRequest{Name: &b}
+
+	_, _, err := rc.client.Repositories.CreateDeploymentBranchPolicy(ctx, rc.org, repo, env, branchPolicyRequest)
+	if err != nil {
+		return fmt.Errorf("failed to create branch policy for environment '%s', branch '%s': %w", env, branch, err)
 	}
 
 	return nil
