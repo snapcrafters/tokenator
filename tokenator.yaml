@@ -17,7 +17,6 @@ snaps:
   - name: signal-desktop
   - name: simplenote
   - name: sublime-merge
-  - name: sublime-text
   - name: terraform
 
   - name: gimp
@@ -28,3 +27,12 @@ snaps:
       - name: preview
         branch: preview
         environment: Preview Candidate Branch
+
+  - name: sublime-text
+    tracks:
+      - name: latest
+        branch: candidate
+        environment: Candidate Branch
+      - name: dev
+        branch: dev
+        environment: Dev Branch
