@@ -16,7 +16,6 @@ snaps:
   - name: pyradio
   - name: signal-desktop
   - name: simplenote
-  - name: sublime-merge
   - name: terraform
 
   - name: gimp
@@ -27,6 +26,15 @@ snaps:
       - name: preview
         branch: preview
         environment: Preview Candidate Branch
+
+  - name: sublime-merge
+    tracks:
+      - name: latest
+        branch: candidate
+        environment: Candidate Branch
+      - name: dev
+        branch: dev
+        environment: Dev Branch
 
   - name: sublime-text
     tracks:
