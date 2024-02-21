@@ -1,5 +1,6 @@
 org: snapcrafters
 snaps:
+  - name: alacritty
   - name: android-studio
   - name: axel
   - name: cumulonimbus
