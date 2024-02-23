@@ -15,6 +15,7 @@ snaps:
   - name: mattermost-desktop
   - name: mosaic
   - name: mutt
+  - name: obs-studio
   - name: pyradio
   - name: signal-desktop
   - name: simplenote
