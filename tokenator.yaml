@@ -16,6 +16,7 @@ snaps:
   - name: mosaic
   - name: mutt
   - name: obs-studio
+  - name: pogo
   - name: pyradio
   - name: signal-desktop
   - name: simplenote
