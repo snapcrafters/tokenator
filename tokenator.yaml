@@ -3,6 +3,7 @@ snaps:
   - name: alacritty
   - name: android-studio
   - name: axel
+  - name: codespell
   - name: cumulonimbus
   - name: ddgr
   - name: discord
