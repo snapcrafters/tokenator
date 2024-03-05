@@ -18,6 +18,7 @@ snaps:
   - name: obs-studio
   - name: pogo
   - name: pyradio
+  - name: ruff
   - name: signal-desktop
   - name: simplenote
   - name: terraform
