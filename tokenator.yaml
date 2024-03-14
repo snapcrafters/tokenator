@@ -18,6 +18,7 @@ snaps:
   - name: mosaic
   - name: mutt
   - name: obs-studio
+  - name: opentyrian
   - name: pogo
   - name: pyradio
   - name: ruff
