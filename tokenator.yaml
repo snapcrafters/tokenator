@@ -14,6 +14,7 @@ snaps:
   - name: helm
   - name: jenkins
   - name: mattermost-desktop
+  - name: minetest
   - name: mosaic
   - name: mutt
   - name: obs-studio
