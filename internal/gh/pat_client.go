@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/pquerna/otp/totp"
 	"github.com/snapcrafters/tokenator/internal/config"
 	"golang.org/x/net/publicsuffix"
 	"golang.org/x/sync/errgroup"
@@ -48,9 +49,10 @@ func (p *PAT) Delete(pc *PATClient) error {
 // PATClient represents an http.Client that can be logged into Github, retaining any
 // session cookies, and used for listing, creating, and deleting PATs.
 type PATClient struct {
-	username string
-	password string
-	c        *http.Client
+	username   string
+	password   string
+	totpSecret string
+	c          *http.Client
 }
 
 // NewPATClient constructs a new PATClient and returns it.
@@ -58,9 +60,10 @@ func NewPATClient(credentials config.LoginCredentials) *PATClient {
 	jar, _ := cookiejar.New(&cookiejar.Options{PublicSuffixList: publicsuffix.List})
 
 	return &PATClient{
-		username: credentials.Login,
-		password: credentials.Password,
-		c:        &http.Client{Jar: jar},
+		username:   credentials.Login,
+		password:   credentials.Password,
+		totpSecret: credentials.TOTPSecret,
+		c:          &http.Client{Jar: jar},
 	}
 }
 
@@ -192,17 +195,26 @@ func (pc *PATClient) Create(name string, repos []string, resourceOwner string) (
 	return token, nil
 }
 
+// checkLoggedIn reports whether or not the current PAT client is logged into
+// Github.
+func (pc *PATClient) checkLoggedIn() bool {
+	resp, err := pc.c.Head("https://github.com/settings/")
+	if err != nil {
+		slog.Debug("failed to check Github login status", "error", err.Error())
+		return false
+	}
+
+	if resp.Request.URL.Path == "/login" {
+		return false
+	}
+
+	return true
+}
+
 // login is a helper method that returns early if the http client already holds a
 // valid logged in session, or otherwise walks through the Github login flow.
 func (pc *PATClient) login() (bool, error) {
-	// First check if we're logged in
-	resp, err := pc.c.Head("https://github.com/settings/")
-	if err != nil {
-		return false, fmt.Errorf("failed to detect Github session login status")
-	}
-
-	// If we are already logged in, the just return
-	if resp.Request.URL.Path != "/login" {
+	if pc.checkLoggedIn() {
 		return true, nil
 	}
 
@@ -234,7 +246,42 @@ func (pc *PATClient) login() (bool, error) {
 		return false, fmt.Errorf(strings.ToLower(errorMsg))
 	}
 
-	return true, nil
+	doc, err = pc.getWebpage("https://github.com/sessions/two-factor/app")
+	if err != nil {
+		return false, fmt.Errorf("failed to parse Github 2FA code entry page")
+	}
+
+	// Reset the fields map
+	fields = url.Values{}
+
+	// Grab the authenticity token from the Github 2FA form
+	authenticityToken, ok := doc.Find("input[name=authenticity_token]").First().Attr("value")
+	if !ok {
+		return false, fmt.Errorf("failed to retrieve authenticity token for 2FA form")
+	}
+
+	// Generate a valid one-time code for the 2FA prompt
+	passcode, err := totp.GenerateCode(pc.totpSecret, time.Now())
+	if err != nil {
+		return false, fmt.Errorf("failed to generate a one-time password for Github login")
+	}
+
+	// Set the 2FA form fields
+	fields.Set("authenticity_token", authenticityToken)
+	fields.Set("app_otp", passcode)
+
+	doc, err = pc.postForm("https://github.com/sessions/two-factor", fields)
+	if err != nil {
+		return false, fmt.Errorf("failed to parse Github 2FA form response")
+	}
+
+	// Check for error messages reported by Github as a result of the request
+	if len(doc.Find(".flash-full.flash-error").Nodes) > 0 {
+		errorMsg := doc.Find(".flash-full.flash-error").First().Text()
+		return false, fmt.Errorf(strings.ToLower(errorMsg))
+	}
+
+	return pc.checkLoggedIn(), nil
 }
 
 // parsePATListPage returns a list of PATs, constructed from those listed on the Github UI

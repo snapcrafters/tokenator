@@ -37,6 +37,7 @@ To run Tokenator, the following environment variables need to be set:
 - `TOKENATOR_LP_AUTH` - Launchpad Remote Build auth file contents
 - `TOKENATOR_SNAPCRAFTERS_BOT_LOGIN` - Github login for the "snapcrafters-bot" user
 - `TOKENATOR_SNAPCRAFTERS_BOT_PASSWORD` - Github password for the "snapcrafters-bot" user
+- `TOKENATOR_SNAPCRAFTERS_TOTP_SECRET` - Github TOTP secret for the "snapcrafters-bot" user
 - `TOKENATOR_APP_ID` - ID of the Github app
 - `TOKENATOR_APP_SECRET` - Client secret for the Github app
 

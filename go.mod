@@ -6,6 +6,7 @@ require (
 	github.com/PuerkitoBio/goquery v1.8.1
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/google/go-github/v58 v58.0.0
+	github.com/pquerna/otp v1.4.0
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/viper v1.18.2
 	github.com/tidwall/gjson v1.17.0
@@ -17,6 +18,7 @@ require (
 
 require (
 	github.com/andybalholm/cascadia v1.3.1 // indirect
+	github.com/boombuler/barcode v1.0.1-0.20190219062509-6c824513bacc // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect

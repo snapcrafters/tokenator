@@ -46,6 +46,7 @@ The following environment variables must be set:
 	- TOKENATOR_LP_AUTH - Launchpad Remote Build auth file contents
 	- TOKENATOR_SNAPCRAFTERS_BOT_LOGIN - Github login for the "snapcrafters-bot" user
 	- TOKENATOR_SNAPCRAFTERS_BOT_PASSWORD - Github password for the "snapcrafters-bot" user
+	- TOKENATOR_SNAPCRAFTERS_BOT_TOTP_SECRET - Github TOTP secret for "snapcrafters-bot" user
 	- TOKENATOR_APP_ID  - ID of the Github app
 	- TOKENATOR_APP_SECRET - Client secret for the Github app
 
@@ -115,6 +116,7 @@ func parseCreds() (config.Credentials, error) {
 		"snapcrafters_org_pat",
 		"snapcrafters_bot_login",
 		"snapcrafters_bot_password",
+		"snapcrafters_bot_totp_secret",
 		"app_id",
 		"app_secret",
 		"lp_auth",
@@ -132,8 +134,9 @@ func parseCreds() (config.Credentials, error) {
 			Password: viper.GetString("snapcraft_password"),
 		},
 		Bot: config.LoginCredentials{
-			Login:    viper.GetString("snapcrafters_bot_login"),
-			Password: viper.GetString("snapcrafters_bot_password"),
+			Login:      viper.GetString("snapcrafters_bot_login"),
+			Password:   viper.GetString("snapcrafters_bot_password"),
+			TOTPSecret: viper.GetString("snapcrafters_bot_totp_secret"),
 		},
 		GithubApp: config.GithubAppCredentials{
 			ID:     viper.GetInt("app_id"),

@@ -45,8 +45,9 @@ type Credentials struct {
 
 // LoginCredentials represents traditional username/password credentials
 type LoginCredentials struct {
-	Login    string
-	Password string
+	Login      string
+	Password   string
+	TOTPSecret string
 }
 
 // GithubAppCredentials enable the representation of a Github App ID and client secret
