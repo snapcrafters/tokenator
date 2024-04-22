@@ -8,7 +8,6 @@ snaps:
   - name: ddgr
   - name: discord
   - name: eclipse
-  - name: ffmpeg-sdk
   - name: get-iplayer
   - name: ghvmctl
   - name: helm
@@ -25,6 +24,12 @@ snaps:
   - name: signal-desktop
   - name: simplenote
   - name: terraform
+
+  - name: ffmpeg-sdk
+    tracks:
+      - name: latest
+        branch: 2204
+        environment: 2204 Branch
 
   - name: gimp
     tracks:
