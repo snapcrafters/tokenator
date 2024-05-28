@@ -11,7 +11,6 @@ snaps:
   - name: get-iplayer
   - name: ghvmctl
   - name: helm
-  - name: jenkins
   - name: mattermost-desktop
   - name: minetest
   - name: mosaic
@@ -39,6 +38,15 @@ snaps:
       - name: preview
         branch: preview
         environment: Preview Candidate Branch
+
+  - name: jenkins
+    tracks:
+      - name: latest
+        branch: candidate
+        environment: Candidate Branch
+      - name: lts
+        branch: lts
+        environment: LTS Branch
 
   - name: sublime-merge
     tracks:
