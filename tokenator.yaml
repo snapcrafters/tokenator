@@ -57,3 +57,9 @@ snaps:
       - name: dev
         branch: dev
         environment: Dev Branch
+
+  - name: webkitgtk-sdk
+    tracks:
+      - name: latest
+        branch: 2204
+        environment: 2204 Branch
