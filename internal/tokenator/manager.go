@@ -98,16 +98,16 @@ func (m *Manager) Process(filter []string) error {
 
 // filterRepos takes a list of repo names and returns a list of only those Repos
 // from the manager's config.
-func (m *Manager) filterRepos(filter []string) []config.Snap {
+func (m *Manager) filterRepos(filter []string) []config.Repo {
 	repos := m.config.Repos
 	if len(filter) > 0 {
-		filteredSnaps := []config.Snap{}
+		filteredRepos := []config.Repo{}
 		for _, repo := range repos {
 			if slices.Contains(filter, repo.Name) {
-				filteredSnaps = append(filteredSnaps, repo)
+				filteredRepos = append(filteredRepos, repo)
 			}
 		}
-		repos = filteredSnaps
+		repos = filteredRepos
 	}
 	return repos
 }

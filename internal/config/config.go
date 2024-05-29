@@ -3,11 +3,11 @@ package config
 // Config represents the top-level configuration structure for Tokenator.
 type Config struct {
 	Org   string `yaml:"org"`
-	Repos []Snap `yaml:"repos"`
+	Repos []Repo `yaml:"repos"`
 }
 
-// Snap represents a given snap package for which a repository needs configuring.
-type Snap struct {
+// Repo represents a repo for a given snap package which needs configuring.
+type Repo struct {
 	Name   string   `yaml:"name"`
 	Snaps  []string `yaml:"snaps,omitempty"`
 	Tracks []Track  `yaml:"tracks"`
@@ -15,7 +15,7 @@ type Snap struct {
 
 // SetDefaults ensures that if no track information is specified for a given snap,
 // sensible defaults are used.
-func (s *Snap) SetDefaults() {
+func (s *Repo) SetDefaults() {
 	s.Tracks = []Track{{Name: "latest", Branch: "candidate", Environment: "Candidate Branch"}}
 }
 
