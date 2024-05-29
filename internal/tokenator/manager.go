@@ -89,7 +89,7 @@ func (m *Manager) Process(filter []string) error {
 	return nil
 }
 
-// filterRepos takes a list of snap names and returns a list of only those Snaps
+// filterRepos takes a list of repo names and returns a list of only those Repos
 // from the manager's config.
 func (m *Manager) filterRepos(filter []string) []config.Snap {
 	repos := m.config.Repos
@@ -105,59 +105,59 @@ func (m *Manager) filterRepos(filter []string) []config.Snap {
 	return repos
 }
 
-// setLaunchpadSecret is helper that sets the LP_BUILD_SECRET for a given snap/track/environment.
-func (m *Manager) setLaunchpadSecret(ctx context.Context, snap string, track config.Track) error {
-	err := m.repoClient.SetEnvSecret(ctx, snap, track, "LP_BUILD_SECRET", m.credentials.Launchpad)
+// setLaunchpadSecret is helper that sets the LP_BUILD_SECRET for a given repo/environment.
+func (m *Manager) setLaunchpadSecret(ctx context.Context, repo string, track config.Track) error {
+	err := m.repoClient.SetEnvSecret(ctx, repo, track, "LP_BUILD_SECRET", m.credentials.Launchpad)
 	if err != nil {
 		return fmt.Errorf("failed to set LP_BUILD_SECRET secret: %w", err)
 	}
 
-	fullName := fmt.Sprintf("%s/%s", m.config.Org, snap)
+	fullName := fmt.Sprintf("%s/%s", m.config.Org, repo)
 	slog.Info("secret set", "repo", fullName, "secret_name", "LP_BUILD_SECRET", "environment", track.Environment)
 
 	return nil
 }
 
 // setLaunchpadSecret is helper that generates and sets the store secret for a given snap/track/environment.
-func (m *Manager) setStoreSecret(ctx context.Context, snap string, track config.Track, channel string) error {
-	token, err := m.storeClient.GenerateStoreToken(snap, track.Name, channel)
+func (m *Manager) setStoreSecret(ctx context.Context, repo string, snaps []string, track config.Track, channel string) error {
+	token, err := m.storeClient.GenerateStoreToken(repo, snaps, track.Name, channel)
 	if err != nil {
 		return err
 	}
 
 	secretName := fmt.Sprintf("SNAP_STORE_%s", strings.ToUpper(channel))
 
-	err = m.repoClient.SetEnvSecret(ctx, snap, track, secretName, token)
+	err = m.repoClient.SetEnvSecret(ctx, repo, track, secretName, token)
 	if err != nil {
 		return fmt.Errorf("failed to set %s secret: %w", secretName, err)
 	}
 
-	fullName := fmt.Sprintf("%s/%s", m.config.Org, snap)
+	fullName := fmt.Sprintf("%s/%s", m.config.Org, repo)
 	slog.Info("secret set", "repo", fullName, "secret_name", secretName, "environment", track.Environment)
 
 	return nil
 }
 
-// setLaunchpadSecret is helper that generates and sets the bot commit secret for a given snap/track/environment.
-func (m *Manager) setBotCommitSecret(ctx context.Context, snap string, track config.Track, pats []*gh.PAT) error {
-	fullName := fmt.Sprintf("%s/%s", m.config.Org, snap)
+// setLaunchpadSecret is helper that generates and sets the bot commit secret for a given repo/environment.
+func (m *Manager) setBotCommitSecret(ctx context.Context, repo string, track config.Track, pats []*gh.PAT) error {
+	fullName := fmt.Sprintf("%s/%s", m.config.Org, repo)
 
 	tokenRepos := []string{fullName, "snapcrafters/ci-screenshots"}
 
 	// Create the access token on Github, which triggers a PAT approval in the org
-	pat, err := m.patClient.Create(fmt.Sprintf("token8r-%s-%s-%s", m.id, snap, track.Name), tokenRepos, m.config.Org)
+	pat, err := m.patClient.Create(fmt.Sprintf("token8r-%s-%s-%s", m.id, repo, track.Name), tokenRepos, m.config.Org)
 	if err != nil {
 		return fmt.Errorf("failed to create personal access token: %w", err)
 	}
 
 	// Approve the PAT request we just triggered so the new token is active
-	err = m.orgClient.ApprovePATRequest(ctx, snap)
+	err = m.orgClient.ApprovePATRequest(ctx, repo)
 	if err != nil {
 		return fmt.Errorf("failed to approve personal access token request: %w", err)
 	}
 
 	// Set the SNAPCRAFTERS_BOT_COMMIT secret
-	err = m.repoClient.SetEnvSecret(ctx, snap, track, "SNAPCRAFTERS_BOT_COMMIT", pat.Token)
+	err = m.repoClient.SetEnvSecret(ctx, repo, track, "SNAPCRAFTERS_BOT_COMMIT", pat.Token)
 	if err != nil {
 		return fmt.Errorf("failed to set SNAPCRAFTERS_BOT_COMMIT secret: %w", err)
 	}
@@ -166,7 +166,7 @@ func (m *Manager) setBotCommitSecret(ctx context.Context, snap string, track con
 
 	// Iterate through the list of PATs, cleaning up redundant secrets where necessary
 	for _, pat := range pats {
-		patSuffix := fmt.Sprintf("%s-%s", snap, track.Name)
+		patSuffix := fmt.Sprintf("%s-%s", repo, track.Name)
 		// If the token name contains the same suffix, but doesn't contain the ID of the
 		// manager, then it was created by a prior run and is now unneeded, so can be
 		// deleted.
