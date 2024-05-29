@@ -42,7 +42,7 @@ func NewSnapStoreClient(credentials config.LoginCredentials) *StoreClient {
 
 // GenerateStoreToken takes a snap, track and channel and returns a token with a
 // TTL of 1 year, with default permissions for the given channel.
-func (sc *StoreClient) GenerateStoreToken(snap, track, channel string) (string, error) {
+func (sc *StoreClient) GenerateStoreToken(repo string, snaps []string, track, channel string) (string, error) {
 	permissions, ok := channelPermissions[channel]
 	if !ok {
 		return "", fmt.Errorf("invalid channel specified")
@@ -50,10 +50,10 @@ func (sc *StoreClient) GenerateStoreToken(snap, track, channel string) (string, 
 
 	tokenParams := tokenParams{
 		Permissions: permissions,
-		Description: fmt.Sprintf("tokenator-%s-%s", snap, track),
+		Description: fmt.Sprintf("tokenator-%s-%s", repo, track),
 		TTL:         60 * 60 * 24 * 365, // 1 year
 		Credentials: sc.credentials,
-		Packages:    []string{snap},
+		Packages:    snaps,
 		Channels:    []string{fmt.Sprintf("%s/%s", track, channel)},
 	}
 

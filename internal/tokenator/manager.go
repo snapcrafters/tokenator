@@ -59,15 +59,22 @@ func (m *Manager) Process(filter []string) error {
 			repo.SetDefaults()
 		}
 
+		snaps := []string{}
+		if len(repo.Snaps) > 0 {
+			snaps = repo.Snaps
+		} else {
+			snaps = []string{repo.Name}
+		}
+
 		for _, track := range repo.Tracks {
 			// Generate the candidate store token and set it on Github
-			err := m.setStoreSecret(ctx, repo.Name, track, "candidate")
+			err := m.setStoreSecret(ctx, repo.Name, snaps, track, "candidate")
 			if err != nil {
 				return fmt.Errorf("failed to set %s/candidate store secret: %w", track.Name, err)
 			}
 
 			// Generate the candidate store token and set it on Github
-			err = m.setStoreSecret(ctx, repo.Name, track, "stable")
+			err = m.setStoreSecret(ctx, repo.Name, snaps, track, "stable")
 			if err != nil {
 				return fmt.Errorf("failed to set %s/stable store secret: %w", track.Name, err)
 			}

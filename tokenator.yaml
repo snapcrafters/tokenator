@@ -25,6 +25,9 @@ repos:
   - name: terraform
 
   - name: ffmpeg-sdk
+    snaps:
+      - ffmpeg-2204
+      - ffmpeg-2204-sdk
     tracks:
       - name: latest
         branch: 2204
@@ -67,6 +70,9 @@ repos:
         environment: Dev Branch
 
   - name: webkitgtk-sdk
+    snaps:
+      - webkitgtk-6-gnome-2204
+      - webkitgtk-6-gnome-2204-sdk
     tracks:
       - name: latest
         branch: 2204

@@ -8,8 +8,9 @@ type Config struct {
 
 // Snap represents a given snap package for which a repository needs configuring.
 type Snap struct {
-	Name   string  `yaml:"name"`
-	Tracks []Track `yaml:"tracks"`
+	Name   string   `yaml:"name"`
+	Snaps  []string `yaml:"snaps,omitempty"`
+	Tracks []Track  `yaml:"tracks"`
 }
 
 // SetDefaults ensures that if no track information is specified for a given snap,
