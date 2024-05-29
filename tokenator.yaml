@@ -1,5 +1,5 @@
 org: snapcrafters
-snaps:
+repos:
   - name: alacritty
   - name: android-studio
   - name: axel

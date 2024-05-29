@@ -3,7 +3,7 @@ package config
 // Config represents the top-level configuration structure for Tokenator.
 type Config struct {
 	Org   string `yaml:"org"`
-	Snaps []Snap `yaml:"snaps"`
+	Repos []Snap `yaml:"repos"`
 }
 
 // Snap represents a given snap package for which a repository needs configuring.
