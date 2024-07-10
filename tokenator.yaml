@@ -71,9 +71,9 @@ repos:
 
   - name: webkitgtk-sdk
     snaps:
-      - webkitgtk-6-gnome-2204
-      - webkitgtk-6-gnome-2204-sdk
+      - webkitgtk-6-gnome-2404
+      - webkitgtk-6-gnome-2404-sdk
     tracks:
       - name: latest
-        branch: 2204
-        environment: 2204 Branch
+        branch: 2404
+        environment: 2404 Branch
