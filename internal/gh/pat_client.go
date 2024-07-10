@@ -243,7 +243,7 @@ func (pc *PATClient) login() (bool, error) {
 
 	if len(doc.Find(".flash-full.flash-error").Nodes) > 0 {
 		errorMsg := doc.Find(".flash-full.flash-error").First().Text()
-		return false, fmt.Errorf(strings.ToLower(errorMsg))
+		return false, fmt.Errorf(removeExtraWhitespace(strings.ToLower(errorMsg)))
 	}
 
 	doc, err = pc.getWebpage("https://github.com/sessions/two-factor/app")
@@ -278,7 +278,7 @@ func (pc *PATClient) login() (bool, error) {
 	// Check for error messages reported by Github as a result of the request
 	if len(doc.Find(".flash-full.flash-error").Nodes) > 0 {
 		errorMsg := doc.Find(".flash-full.flash-error").First().Text()
-		return false, fmt.Errorf(strings.ToLower(errorMsg))
+		return false, fmt.Errorf(removeExtraWhitespace(strings.ToLower(errorMsg)))
 	}
 
 	return pc.checkLoggedIn(), nil
@@ -365,4 +365,8 @@ func (pc *PATClient) postForm(url string, fields url.Values) (*goquery.Document,
 	}
 
 	return doc, nil
+}
+
+func removeExtraWhitespace(s string) string {
+	return strings.Join(strings.Fields(s), " ")
 }
