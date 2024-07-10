@@ -275,13 +275,15 @@ func (pc *PATClient) login() (bool, error) {
 		return false, fmt.Errorf("failed to parse Github 2FA form response")
 	}
 
+	loggedIn := pc.checkLoggedIn()
+
 	// Check for error messages reported by Github as a result of the request
-	if len(doc.Find(".flash-full.flash-error").Nodes) > 0 {
+	if !loggedIn && len(doc.Find(".flash-full.flash-error").Nodes) > 0 {
 		errorMsg := doc.Find(".flash-full.flash-error").First().Text()
 		return false, fmt.Errorf(removeExtraWhitespace(strings.ToLower(errorMsg)))
 	}
 
-	return pc.checkLoggedIn(), nil
+	return loggedIn, nil
 }
 
 // parsePATListPage returns a list of PATs, constructed from those listed on the Github UI
