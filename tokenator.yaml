@@ -24,7 +24,7 @@ repos:
   - name: simplenote
   - name: terraform
 
-  - name: ffmpeg-sdk
+  - name: ffmpeg-2204-sdk
     snaps:
       - ffmpeg-2204
       - ffmpeg-2204-sdk
@@ -32,6 +32,15 @@ repos:
       - name: latest
         branch: 2204
         environment: 2204 Branch
+
+  - name: ffmpeg-2404-sdk
+    snaps:
+      - ffmpeg-2404
+      - ffmpeg-2404-sdk
+    tracks:
+      - name: latest
+        branch: 2404
+        environment: 2404 Branch
 
   - name: gimp
     tracks:
