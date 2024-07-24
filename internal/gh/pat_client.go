@@ -333,7 +333,7 @@ func (pc *PATClient) getRepositoryID(owner string, repo string) (string, error) 
 	}
 
 	// Get the ID from the remove button that's rendered in the suggestions
-	id, ok := doc.Find(fmt.Sprintf("[aria-label='Remove %s']", repo)).Attr("value")
+	id, ok := doc.Find(".ActionListItem").Attr("data-value")
 	if !ok {
 		return "", fmt.Errorf("failed to find repository id for %s/%s", owner, repo)
 	}
