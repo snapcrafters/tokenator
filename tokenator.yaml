@@ -50,6 +50,9 @@ repos:
       - name: preview
         branch: preview
         environment: Preview Candidate Branch
+      - name: 2.99-openvino
+        branch: 2.99-openvino
+        environment: 2.99 OpenVino Candidate Branch
 
   - name: jenkins
     tracks:
