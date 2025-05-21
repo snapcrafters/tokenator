@@ -144,13 +144,11 @@ func (pc *PATClient) Create(name string, repos []string, resourceOwner string) (
 		repoIDs = append(repoIDs, id)
 	}
 
-	expiry := time.Now().AddDate(1, 0, 0).Format("2006-01-02")
-
 	fields := url.Values{}
 	fields.Set("authenticity_token", createToken)
+	fields.Set("confirm", "1")
 	fields.Set("user_programmatic_access[name]", name)
-	fields.Set("user_programmatic_access[default_expires_at]", "custom")
-	fields.Set("user_programmatic_access[custom_expires_at]", expiry)
+	fields.Set("user_programmatic_access[default_expires_at]", "366")
 	fields.Set("user_programmatic_access[description]", "")
 	fields.Set("target_name", resourceOwner)
 	fields.Set("install_target", "selected")
@@ -166,12 +164,12 @@ func (pc *PATClient) Create(name string, repos []string, resourceOwner string) (
 		return nil, fmt.Errorf("failed to POST personal access token form: %w", err)
 	}
 
-	tokenElem := doc.Find(".access-token").First()
+	tokenElem := doc.Find(".new-token")
 
 	tokenValue, ok := tokenElem.Find("#new-access-token").Attr("value")
 	if !ok {
 		errorMsg := doc.Find(".error,.flash-error.flash-full").Text()
-		return nil, fmt.Errorf("%s", strings.ToLower(errorMsg))
+		return nil, fmt.Errorf("failed to extract token value: %s", strings.ToLower(errorMsg))
 	}
 
 	tokenId, ok := tokenElem.Attr("data-id")
