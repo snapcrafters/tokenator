@@ -2,6 +2,7 @@ org: snapcrafters
 repos:
   - name: alacritty
   - name: android-studio
+  - name: audacity
   - name: axel
   - name: codespell
   - name: cumulonimbus
