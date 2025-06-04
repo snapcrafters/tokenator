@@ -13,9 +13,9 @@ repos:
   - name: ghvmctl
   - name: helm
   - name: mattermost-desktop
-  - name: minetest
   - name: mosaic
   - name: mutt
+  - name: luanti
   - name: obs-studio
   - name: opentyrian
   - name: pogo
