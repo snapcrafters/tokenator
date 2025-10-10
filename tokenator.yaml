@@ -43,12 +43,6 @@ repos:
         branch: 2404
         environment: 2404 Branch
 
-  - name: gimp
-    tracks:
-      - name: latest
-        branch: candidate
-        environment: Candidate Branch
-
   - name: jenkins
     tracks:
       - name: latest
