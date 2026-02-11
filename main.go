@@ -1,10 +1,12 @@
 package main
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
 	"log/slog"
 	"os"
+	"strings"
 
 	"github.com/snapcrafters/tokenator/internal/config"
 	"github.com/snapcrafters/tokenator/internal/tokenator"
@@ -18,6 +20,7 @@ var (
 
 	repositories []string
 	verbose      bool
+	force        bool
 )
 
 var shortDesc = "A utility for distributing credentials to Snapcrafters repositories."
@@ -85,6 +88,63 @@ var rootCmd = &cobra.Command{
 	},
 }
 
+var clearPatsCmd = &cobra.Command{
+	Use:   "clear-pats",
+	Short: "Delete all personal access tokens with the token8r- prefix.",
+	Long: `Delete all personal access tokens with the token8r- prefix from the
+configured bot account.
+
+The following environment variables must be set:
+
+	- TOKENATOR_SNAPCRAFTERS_BOT_LOGIN - Github login for the "snapcrafters-bot" user
+	- TOKENATOR_SNAPCRAFTERS_BOT_PASSWORD - Github password for the "snapcrafters-bot" user
+	- TOKENATOR_SNAPCRAFTERS_BOT_TOTP_SECRET - Github TOTP secret for "snapcrafters-bot" user
+
+Use --force to skip the confirmation prompt.`,
+	SilenceErrors: false,
+	SilenceUsage:  true,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		tokenator.SetupLogger(verbose)
+
+		mgr := tokenator.NewPATManager(parseBotCreds())
+
+		pats, err := mgr.ListPATs("token8r-")
+		if err != nil {
+			return err
+		}
+
+		if len(pats) == 0 {
+			slog.Info("no personal access tokens found with token8r- prefix")
+			return nil
+		}
+
+		fmt.Printf("The following %d token(s) will be deleted:\n\n", len(pats))
+		for _, pat := range pats {
+			fmt.Printf("  - %s\n", pat.Name)
+		}
+		fmt.Println()
+
+		if !force {
+			fmt.Print("Are you sure? [y/N] ")
+			reader := bufio.NewReader(os.Stdin)
+			answer, _ := reader.ReadString('\n')
+			answer = strings.TrimSpace(strings.ToLower(answer))
+			if answer != "y" && answer != "yes" {
+				fmt.Println("Aborted.")
+				return nil
+			}
+		}
+
+		deleted, err := mgr.DeletePATs(pats)
+		if err != nil {
+			return err
+		}
+
+		slog.Info("done", "tokens_deleted", deleted)
+		return nil
+	},
+}
+
 func main() {
 	// Set the default config file name/type.
 	viper.SetConfigName("tokenator")
@@ -98,12 +158,35 @@ func main() {
 	// Setup environment variable parsing.
 	viper.SetEnvPrefix("TOKENATOR")
 
+	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "enable verbose logging")
 	rootCmd.Flags().StringSliceVarP(&repositories, "repos", "r", []string{}, "comma-separated subset of repos to process. If omitted all configured repos will be processed.")
-	rootCmd.Flags().BoolVarP(&verbose, "verbose", "v", false, "enable verbose logging")
+
+	clearPatsCmd.Flags().BoolVarP(&force, "force", "f", false, "skip confirmation prompt")
+	rootCmd.AddCommand(clearPatsCmd)
+
 	err := rootCmd.Execute()
 	if err != nil {
 		slog.Error(err.Error())
 		os.Exit(1)
+	}
+}
+
+// parseBotCreds binds and returns only the bot account credentials needed
+// for PAT management operations.
+func parseBotCreds() config.LoginCredentials {
+	botCredEnvVars := []string{
+		"snapcrafters_bot_login",
+		"snapcrafters_bot_password",
+		"snapcrafters_bot_totp_secret",
+	}
+	for _, cred := range botCredEnvVars {
+		viper.MustBindEnv(cred)
+	}
+
+	return config.LoginCredentials{
+		Login:      viper.GetString("snapcrafters_bot_login"),
+		Password:   viper.GetString("snapcrafters_bot_password"),
+		TOTPSecret: viper.GetString("snapcrafters_bot_totp_secret"),
 	}
 }
 

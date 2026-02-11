@@ -42,6 +42,46 @@ func NewManager(config config.Config, credentials config.Credentials) *Manager {
 	}
 }
 
+// NewPATManager constructs a Manager with only the PAT client configured.
+// This is useful for operations that only need to manage Personal Access Tokens.
+func NewPATManager(botCreds config.LoginCredentials) *Manager {
+	return &Manager{
+		patClient: gh.NewPATClient(botCreds),
+	}
+}
+
+// ListPATs returns all Personal Access Tokens whose names start with the given prefix.
+func (m *Manager) ListPATs(prefix string) ([]*gh.PAT, error) {
+	pats, err := m.patClient.List(prefix)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list personal access tokens: %w", err)
+	}
+
+	filtered := []*gh.PAT{}
+	for _, pat := range pats {
+		if strings.HasPrefix(pat.Name, prefix) {
+			filtered = append(filtered, pat)
+		}
+	}
+
+	return filtered, nil
+}
+
+// DeletePATs deletes all of the given Personal Access Tokens and returns the
+// number successfully deleted.
+func (m *Manager) DeletePATs(pats []*gh.PAT) (int, error) {
+	deleted := 0
+	for _, pat := range pats {
+		err := pat.Delete(m.patClient)
+		if err != nil {
+			return deleted, fmt.Errorf("failed to delete token %s: %w", pat.Name, err)
+		}
+		slog.Info("deleted personal access token", "token_name", pat.Name)
+		deleted++
+	}
+	return deleted, nil
+}
+
 // Process instructs the manager to iterate over the list of snaps it's configured
 // with, optionally filtering the list to a subset.
 func (m *Manager) Process(filter []string) error {
