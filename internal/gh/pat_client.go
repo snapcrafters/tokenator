@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
@@ -76,32 +77,35 @@ func (pc *PATClient) List(filter string) ([]*PAT, error) {
 	}
 
 	// Grab the first page of access tokens
-	doc, err := pc.getWebpage("https://github.com/settings/tokens?page=1&type=beta")
+	doc, err := pc.getWebpage("https://github.com/settings/personal-access-tokens?page=1")
 	if err != nil {
 		return nil, fmt.Errorf("failed to get personal access tokens page: %w", err)
 	}
 
 	// Add the access tokens from this page to the list
-	accessTokens := []*PAT{}
-	accessTokens = append(accessTokens, pc.parsePATListPage(doc, filter)...)
+	accessTokens := pc.parsePATListPage(doc, filter)
 
 	// Get the total number of pages of access tokens
 	pageCount, _ := strconv.Atoi(doc.Find(".pagination > .current").AttrOr("data-total-pages", "1"))
 
 	// Create a wait group so we can easily process the remaining pages concurrently
 	errs := errgroup.Group{}
+	var mu sync.Mutex
 
 	// Iterate through the pages, collecting the access tokens
 	for i := 2; i < pageCount+1; i++ {
 		j := i
 		errs.Go(func() error {
-			url := fmt.Sprintf("https://github.com/settings/tokens?page=%d&type=beta", j)
-			doc, err := pc.getWebpage(url)
+			pageURL := fmt.Sprintf("https://github.com/settings/personal-access-tokens?page=%d", j)
+			doc, err := pc.getWebpage(pageURL)
 			if err != nil {
 				return fmt.Errorf("failed to parse personal access tokens page %d", j)
 			}
 
-			accessTokens = append(accessTokens, pc.parsePATListPage(doc, filter)...)
+			pagePATs := pc.parsePATListPage(doc, filter)
+			mu.Lock()
+			accessTokens = append(accessTokens, pagePATs...)
+			mu.Unlock()
 			return nil
 		})
 	}
@@ -287,8 +291,8 @@ func (pc *PATClient) login() (bool, error) {
 // parsePATListPage returns a list of PATs, constructed from those listed on the Github UI
 func (pc *PATClient) parsePATListPage(doc *goquery.Document, filter string) []*PAT {
 	accessTokens := []*PAT{}
-	doc.Find(".access-token").Each(func(i int, s *goquery.Selection) {
-		name := s.Find("a").Text()
+	doc.Find(".Box-row[data-type='token']").Each(func(i int, s *goquery.Selection) {
+		name := strings.TrimSpace(s.Find("a").First().Text())
 
 		// Don't include items that don't match the filter.
 		if !strings.Contains(name, filter) {
