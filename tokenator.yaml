@@ -24,6 +24,7 @@ repos:
   - name: signal-desktop
   - name: simplenote
   - name: terraform
+  - name: terragrunt
 
   - name: ffmpeg-2204-sdk
     snaps:
