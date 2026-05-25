@@ -172,8 +172,8 @@ func (pc *PATClient) Create(name string, repos []string, resourceOwner string) (
 
 	tokenValue, ok := tokenElem.Find("#new-access-token").Attr("value")
 	if !ok {
-		errorMsg := doc.Find(".error,.flash-error.flash-full").Text()
-		return nil, fmt.Errorf("failed to extract token value: %s", strings.ToLower(errorMsg))
+		errorMsg := doc.Find(".flash-error.flash-full").Text()
+		return nil, fmt.Errorf("failed to extract token value: %s", strings.TrimSpace(strings.ToLower(errorMsg)))
 	}
 
 	tokenId, ok := tokenElem.Attr("data-id")
