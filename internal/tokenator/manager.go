@@ -89,7 +89,7 @@ func (m *Manager) Process(filter []string) error {
 
 	// Get the list of previously configured Personal Access Tokens, as some of these
 	// will be deleted as they're superseded.
-	pats, err := m.patClient.List("token8r")
+	pats, err := m.patClient.List("t8r-")
 	if err != nil {
 		return fmt.Errorf("failed to list personal access tokens: %w", err)
 	}
@@ -192,7 +192,8 @@ func (m *Manager) setBotCommitSecret(ctx context.Context, repo string, track con
 	tokenRepos := []string{fullName, "snapcrafters/ci-screenshots"}
 
 	// Create the access token on Github, which triggers a PAT approval in the org
-	pat, err := m.patClient.Create(fmt.Sprintf("token8r-%s-%s-%s", m.id, repo, track.Name), tokenRepos, m.config.Org)
+	patName := shortenPATName(fmt.Sprintf("t8r-%s-%s-%s", m.id, repo, track.Name))
+	pat, err := m.patClient.Create(patName, tokenRepos, m.config.Org)
 	if err != nil {
 		return fmt.Errorf("failed to create personal access token: %w", err)
 	}
@@ -238,4 +239,37 @@ func generateID() string {
 	bs := h.Sum(nil)
 
 	return fmt.Sprintf("%x", bs)[0:4]
+}
+
+const patNameMaxLen = 40
+
+func shortenPATName(name string) string {
+	if len(name) <= patNameMaxLen {
+		return name
+	}
+
+	prefix, rest, _ := strings.Cut(name, "-")
+	parts := strings.SplitN(rest, "-", 3)
+	if len(parts) < 3 {
+		return name[:patNameMaxLen]
+	}
+	id, repo, track := parts[0], parts[1], parts[2]
+
+	repoSegments := strings.Split(repo, "-")
+	for maxSegLen := 5; maxSegLen >= 2; maxSegLen-- {
+		truncated := make([]string, len(repoSegments))
+		for i, seg := range repoSegments {
+			if len(seg) > maxSegLen {
+				truncated[i] = seg[:maxSegLen]
+			} else {
+				truncated[i] = seg
+			}
+		}
+		candidate := fmt.Sprintf("%s-%s-%s-%s", prefix, id, strings.Join(truncated, "-"), track)
+		if len(candidate) <= patNameMaxLen {
+			return candidate
+		}
+	}
+
+	return name[:patNameMaxLen]
 }

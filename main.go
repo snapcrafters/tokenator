@@ -108,13 +108,13 @@ Use --force to skip the confirmation prompt.`,
 
 		mgr := tokenator.NewPATManager(parseBotCreds())
 
-		pats, err := mgr.ListPATs("token8r-")
+		pats, err := mgr.ListPATs("t8r-")
 		if err != nil {
 			return err
 		}
 
 		if len(pats) == 0 {
-			slog.Info("no personal access tokens found with token8r- prefix")
+			slog.Info("no personal access tokens found with t8r- prefix")
 			return nil
 		}
 
