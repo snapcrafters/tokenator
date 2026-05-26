@@ -106,6 +106,16 @@ func (m *Manager) Process(filter []string) error {
 			snaps = []string{repo.Name}
 		}
 
+		// Ensure the "testing" label exists so the Call for Testing workflow
+		// can tag issues correctly.
+		err = m.repoClient.EnsureLabel(ctx, repo.Name, "testing", "0075ca", "Used by the Call for Testing workflow")
+		if err != nil {
+			return fmt.Errorf("failed to ensure 'testing' label on %s: %w", repo.Name, err)
+		}
+
+		fullName := fmt.Sprintf("%s/%s", m.config.Org, repo.Name)
+		slog.Info("label ensured", "repo", fullName, "label", "testing")
+
 		for _, track := range repo.Tracks {
 			// Generate the candidate store token and set it on Github
 			err := m.setStoreSecret(ctx, repo.Name, snaps, track, "candidate")
