@@ -15,6 +15,7 @@ repos:
   - name: helm
   - name: mattermost-desktop
   - name: mosaic
+  - name: nano
   - name: mutt
   - name: luanti
   - name: obs-studio
