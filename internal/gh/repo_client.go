@@ -133,6 +133,32 @@ func (rc *RepoClient) createEnvironment(ctx context.Context, repo string, track 
 	return nil
 }
 
+// EnsureLabel checks whether a label with the given name exists on the specified
+// repository and creates it if it does not. The color should be a 6-digit hex
+// string without the leading '#' (e.g. "0075ca").
+func (rc *RepoClient) EnsureLabel(ctx context.Context, repo, name, color, description string) error {
+	_, resp, err := rc.client.Issues.GetLabel(ctx, rc.org, repo, name)
+	if err == nil {
+		// Label already exists.
+		return nil
+	}
+
+	if resp == nil || resp.StatusCode != http.StatusNotFound {
+		return fmt.Errorf("failed to check for label %q: %w", name, err)
+	}
+
+	_, _, err = rc.client.Issues.CreateLabel(ctx, rc.org, repo, &github.Label{
+		Name:        &name,
+		Color:       &color,
+		Description: &description,
+	})
+	if err != nil {
+		return fmt.Errorf("failed to create label %q: %w", name, err)
+	}
+
+	return nil
+}
+
 func (rc *RepoClient) createDeploymentBranchPolicy(ctx context.Context, repo string, env string, branch string) error {
 	b := branch
 	branchPolicyRequest := &github.DeploymentBranchPolicyRequest{Name: &b}
