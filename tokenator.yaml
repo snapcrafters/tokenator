@@ -12,7 +12,6 @@ repos:
   - name: eclipse
   - name: get-iplayer
   - name: ghvmctl
-  - name: helm
   - name: mattermost-desktop
   - name: mosaic
   - name: nano
@@ -45,6 +44,15 @@ repos:
       - name: latest
         branch: 2404
         environment: 2404 Branch
+
+  - name: helm
+    tracks:
+      - name: latest
+        branch: candidate
+        environment: Candidate Branch
+      - name: 3
+        branch: 3
+        environment: "3 Branch"
 
   - name: jenkins
     tracks:
