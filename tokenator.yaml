@@ -27,6 +27,7 @@ repos:
   - name: simplenote
   - name: terraform
   - name: terragrunt
+  - name: xonotic
 
   - name: ffmpeg-2204-sdk
     snaps:
