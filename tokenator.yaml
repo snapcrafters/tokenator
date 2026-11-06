@@ -14,6 +14,7 @@ repos:
   - name: ghvmctl
   - name: mattermost-desktop
   - name: mosaic
+  - name: mumble
   - name: nano
   - name: mutt
   - name: luanti
