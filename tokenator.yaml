@@ -12,6 +12,7 @@ repos:
   - name: eclipse
   - name: get-iplayer
   - name: ghvmctl
+  - name: inadyn
   - name: mattermost-desktop
   - name: mosaic
   - name: mumble
