@@ -30,6 +30,15 @@ repos:
   - name: terragrunt
   - name: xonotic
 
+  - name: arduino
+    tracks:
+      - name: latest
+        branch: candidate
+        environment: "Candidate Branch"
+      - name: "2"
+        branch: "2"
+        environment: "2 Branch"
+
   - name: ffmpeg-2204-sdk
     snaps:
       - ffmpeg-2204
